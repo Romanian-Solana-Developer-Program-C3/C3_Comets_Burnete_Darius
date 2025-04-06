@@ -16,9 +16,10 @@ pub fn handler(
         id,
         maker: ctx.accounts.maker.key(),
         token_a_amount,
-        token_a_mint: ctx.accounts.token_mint_a.key(),
+        token_mint_a: ctx.accounts.token_mint_a.key(),
         token_b_wanted_amount,
-        token_b_mint: ctx.accounts.token_mint_b.key(),
+        token_mint_b: ctx.accounts.token_mint_b.key(),
+        bump: ctx.bumps.offer,
     });
 
     send_offer_tokens_to_vault(ctx, token_a_amount)?;
@@ -57,10 +58,20 @@ pub struct MakeOffer<'info> {
     #[account(mut)]
     pub maker: Signer<'info>,
 
+    #[account(mint::token_program = token_program)]
     pub token_mint_a: InterfaceAccount<'info, Mint>,
+
+    #[account(mint::token_program = token_program)]
     pub token_mint_b: InterfaceAccount<'info, Mint>,
 
+    #[account(
+        mut,
+        associated_token::mint = token_mint_a,
+        associated_token::authority = maker,
+        associated_token::token_program = token_program,
+    )]
     pub maker_token_account_a: InterfaceAccount<'info, TokenAccount>,
+
     #[account(
         init, 
         payer = maker,
@@ -69,6 +80,7 @@ pub struct MakeOffer<'info> {
         associated_token::token_program = token_program,
     )]
     pub vault: InterfaceAccount<'info, TokenAccount>,
+
     #[account(
         init,
         payer = maker,
