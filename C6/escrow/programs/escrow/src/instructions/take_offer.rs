@@ -70,6 +70,7 @@ pub struct TakeOffer<'info> {
     #[account(mut)]
     pub taker: Signer<'info>,
 
+    ///CHECK: This account is validated in the handler function.
     pub maker: AccountInfo<'info>,
 
     #[account(mint::token_program = token_program)]
